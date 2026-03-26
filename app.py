@@ -50,6 +50,35 @@ with st.sidebar:
         if uploaded_file.size > 25 * 1024 * 1024:
             st.error("File exceeds the 25MB limit. Please upload a smaller file.")
             uploaded_file = None
+    
+    if uploaded_file is not None:
+        if st.button("Process Document"):
+            with st.status("Processing document...", expanded=True) as status:
+                try:
+                    response = requests.post(
+                        url="YOUR_MAKE_INGESTION_WEBHOOK_URL",
+                        files={"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)},
+                        data={"workspace_id": st.session_state.workspace_id},
+                        timeout=120
+                    )
+                    if response.status_code == 200:
+                        st.session_state.doc_status[uploaded_file.name] = "Indexed"
+                        status.update(label="Document indexed successfully.", state="complete")
+                    else:
+                        status.update(label="Make.com returned an error. Check your webhook.", state="error")
+                        st.error(f"Error {response.status_code}: {response.text}")
+                except requests.exceptions.Timeout:
+                    status.update(label="Request timed out after 2 minutes.", state="error")
+                    st.error("The document took too long to process. Try a smaller file or check Make.com.")
+                except requests.exceptions.RequestException as e:
+                    status.update(label="Connection error.", state="error")
+                    st.error(f"Could not reach Make.com: {e}")
+
+    if st.session_state.doc_status:
+        st.divider()
+        st.subheader("Indexed Documents")
+        for doc_name, doc_state in st.session_state.doc_status.items():
+            st.success(f"✅ {doc_name}")
 
 # --- Main Stage: Dual-Pane Layout ---
 col_chat, col_evidence = st.columns([2, 3])
