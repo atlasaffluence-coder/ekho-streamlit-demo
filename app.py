@@ -39,6 +39,17 @@ with st.sidebar:
     st.divider()
 
     st.subheader("Document Ingestion")
+    
+    uploaded_file = st.file_uploader(
+        label="Upload a document",
+        type=["pdf", "docx"],
+        help="Maximum file size: 25MB"
+    )
+
+    if uploaded_file is not None:
+        if uploaded_file.size > 25 * 1024 * 1024:
+            st.error("File exceeds the 25MB limit. Please upload a smaller file.")
+            uploaded_file = None
 
 # --- Main Stage: Dual-Pane Layout ---
 col_chat, col_evidence = st.columns([2, 3])
