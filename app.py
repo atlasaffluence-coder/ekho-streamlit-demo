@@ -85,7 +85,17 @@ col_chat, col_evidence = st.columns([2, 3])
 
 with col_chat:
     st.subheader("Query Interface")
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
 with col_evidence:
     st.subheader("Evidence Panel")
     st.caption("Click a citation in the chat to view the source text.")
+
+# --- Chat Input (root level — Streamlit constraint) ---
+user_query = st.chat_input("Ask a question about your documents...")
+
+if user_query:
+    st.session_state.messages.append({"role": "user", "content": user_query})
+    st.rerun()
