@@ -10,9 +10,3 @@ import requests
 
 st.set_page_config(page_title="EKHO Demo", layout="wide")
 st.title("EKHO Legal Intelligence")
-```
-
-4. Scroll down to **"Commit new file"**.
-5. In the commit message field, type:
-```
-   Add app.py skeleton
